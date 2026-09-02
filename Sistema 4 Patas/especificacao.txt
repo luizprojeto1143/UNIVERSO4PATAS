@@ -1,0 +1,1257 @@
+VetFlow
+ESPECIFICAÇÃO MESTRE DO SISTEMA VETERINÁRIO
+Documento de execução para Google Antigravity + auditoria pelo OpenAI Codex
+OBJETIVO DO DOCUMENTO
+Entregar à inteligência artificial uma definição suficientemente detalhada para planejar, construir, testar, integrar e documentar um sistema veterinário completo, modular, seguro e comercializável, evitando suposições silenciosas e retrabalho.
+Versão 2.0 • Julho de 2026
+Produto idealizado para operação da Clínica 4 Patas e futura comercialização nacional.
+1. Como o Antigravity deve usar este documento
+Este documento é uma especificação executável. Antes de escrever código, o agente deve ler integralmente a seção do módulo atual, identificar dependências, registrar dúvidas como suposições explícitas e produzir um plano de implementação verificável.
+REGRA CENTRAL
+Não construir o sistema inteiro em uma única execução. Trabalhar por módulo, com entregas pequenas, testáveis e versionadas. Um módulo só pode ser considerado concluído quando seus critérios de aceite, testes e integrações estiverem aprovados.
+Não alterar arquitetura, nomes de entidades, regras de negócio ou contratos de API sem registrar uma decisão arquitetural.
+Não usar dados simulados como solução permanente. Mocks são permitidos apenas durante desenvolvimento e devem ser claramente identificados.
+Não criar tela sem fluxo completo: carregamento, vazio, sucesso, validação, erro, sem permissão e concorrência.
+Não armazenar regras críticas exclusivamente no frontend. Permissões, cálculos, status e validações devem ser garantidos no backend.
+Não apagar registros clínicos ou financeiros de maneira destrutiva; utilizar cancelamento, inativação, versionamento e trilha de auditoria.
+Não avançar para o próximo módulo com testes quebrados ou migrações inconsistentes.
+Produzir README, decisões técnicas, mapa de rotas, contratos de API e instruções de execução em cada entrega.
+1.1 Formato obrigatório de cada ciclo de trabalho
+Analisar o requisito e listar dependências.
+Criar ou atualizar o plano técnico do módulo.
+Definir entidades, migrations, endpoints, permissões e estados da interface.
+Implementar backend e testes de domínio.
+Implementar frontend e testes de interface.
+Integrar frontend-backend sem mocks permanentes.
+Executar lint, typecheck, testes unitários, integração e fluxo ponta a ponta.
+Produzir relatório com arquivos alterados, decisões, riscos e pendências.
+Solicitar auditoria do Codex antes de marcar o módulo como estável.
+1.2 Definição de pronto
+Área
+Condição mínima para aprovação
+Funcional
+Todos os fluxos felizes e alternativos descritos no módulo funcionam.
+Validação
+Campos, transições e cálculos são validados no backend e refletidos no frontend.
+Segurança
+Autorização por clínica, unidade e função; sem exposição cruzada de dados.
+Dados
+Migrations reversíveis, integridade referencial, índices e seed mínimo.
+Qualidade
+Lint, typecheck e suíte de testes sem falhas.
+UX
+Estados de carregamento, vazio, erro, sucesso, confirmação e acessibilidade.
+Auditoria
+Ações críticas registradas com usuário, data, origem, antes e depois.
+Documentação
+Rotas, endpoints, modelos e procedimento de teste atualizados.
+2. Visão do produto
+VetFlow será uma plataforma SaaS multiempresa para clínicas, hospitais veterinários, consultórios, centros de diagnóstico, pet shops e redes. O produto deve unir operação clínica, administrativa, financeira e comunicação com tutores em uma única base de dados.
+Princípio
+Interpretação de produto
+Paciente no centro
+Toda informação clínica, financeira, documental e de comunicação deve convergir para a linha do tempo do animal.
+Menos cliques
+Ações frequentes devem ocorrer na tela contextual, sem navegação desnecessária.
+Segurança clínica
+Alertas, alergias, interações, permissões e histórico nunca podem ficar ocultos em momentos críticos.
+Rastreabilidade
+Toda alteração relevante precisa ser identificável e, quando aplicável, recuperável.
+Automação responsável
+Automatizar lembretes, lançamentos e documentos sem retirar a confirmação humana em ações clínicas ou financeiras.
+Multiunidade
+Separar operações por organização e unidade, permitindo visão consolidada apenas a perfis autorizados.
+Mobile operacional
+Equipe deve consultar e registrar informações essenciais em smartphones e tablets.
+Comercializável
+Arquitetura, implantação e configuração precisam servir outras clínicas sem customizações invasivas.
+2.1 Escopo de lançamento por ondas
+Onda
+Objetivo
+Módulos
+Onda 1 — Núcleo clínico
+Operar consultas reais na 4 Patas.
+Autenticação, organização, permissões, tutores, pacientes, agenda, triagem, atendimento, documentos básicos e cobrança simples.
+Onda 2 — Operação hospitalar
+Cobrir permanência e consumo assistencial.
+Internação, prescrição hospitalar, passagem de plantão, estoque, compras, controlados, exames e procedimentos.
+Onda 3 — Gestão completa
+Reduzir trabalho administrativo e dar visão financeira.
+Caixa, contas, conciliação, comissões, DRE, split manual, planos, assinaturas e dashboards.
+Onda 4 — Ecossistema
+Escalar e diferenciar o produto.
+Portal/app do tutor, app da equipe, integrações, fiscal, laboratório, imagem, IA, marketing e rede de clínicas.
+3. Usuários, perfis e permissões
+Perfil
+Responsabilidade principal
+Proprietário/Master da organização
+Configura empresa, unidades, faturamento, integrações, usuários e visão consolidada.
+Administrador da clínica
+Gerencia operação, cadastros, agenda, preços, estoque, relatórios e equipe conforme delegação.
+Recepcionista
+Cadastra tutores e pacientes, agenda, faz check-in, orçamento, recebimento e comunicação.
+Médico-veterinário
+Acessa prontuário, realiza atendimento, prescreve, solicita exames, interna e emite documentos.
+Auxiliar/Técnico veterinário
+Executa triagem, cuidados, medicações delegadas, internação e registros permitidos.
+Farmácia/Estoque
+Gerencia produtos, lotes, inventário, requisições e dispensação.
+Financeiro
+Opera caixa, contas, conciliações, cobranças, relatórios e fechamento.
+Laboratório/Imagem
+Visualiza solicitações, registra coleta, processamento, resultados e anexos.
+Gestor clínico
+Audita prontuários, protocolos, produtividade, qualidade e indicadores clínicos.
+Tutor
+Acessa dados próprios, agenda, documentos, lembretes, pagamentos e histórico liberado.
+Suporte SaaS
+Atua com impersonação controlada, logs e ferramentas de suporte sem acesso irrestrito.
+A permissão deve ser baseada em ações, não apenas em páginas. Exemplo: view_patient, edit_patient_demographics, create_clinical_note, sign_clinical_note, cancel_invoice, view_cost, dispense_controlled_drug. O backend deverá verificar todas as ações.
+3.1 Escopo de acesso
+Organização: impede qualquer vazamento entre clientes SaaS.
+Unidade: restringe dados e operação à unidade permitida.
+Equipe/profissional: pode limitar agenda e produtividade.
+Paciente/tutor: portal externo enxerga apenas informações liberadas e pertencentes ao usuário.
+Campo sensível: custos, margens, dados clínicos restritos e controlados exigem permissão específica.
+4. Arquitetura técnica recomendada
+O Antigravity pode propor ajustes, mas deve preservar separação clara entre domínio, infraestrutura e interface. A recomendação abaixo prioriza produtividade, testes e evolução SaaS.
+Camada
+Tecnologia recomendada
+Requisitos
+Frontend web
+Next.js 15+, React, TypeScript, Tailwind ou MUI, React Query, React Hook Form, Zod
+SSR apenas quando útil; telas operacionais predominantemente client-side com cache controlado.
+Backend
+NestJS com TypeScript ou FastAPI/Python
+API modular, validação forte, documentação OpenAPI, jobs assíncronos e testes.
+Banco
+PostgreSQL
+UUID, timestamps com timezone, índices, constraints, transações e Row Level Strategy no aplicativo.
+ORM
+Prisma/Drizzle ou SQLAlchemy
+Migrations versionadas e revisão de queries críticas.
+Cache e filas
+Redis + BullMQ/Celery
+Lembretes, geração de PDFs, importações, notificações e tarefas demoradas.
+Arquivos
+S3 compatível
+URLs assinadas, antivírus, metadados e política de retenção.
+Autenticação
+JWT curto + refresh rotacionado ou provedor confiável
+MFA para perfis administrativos, revogação de sessão e logs.
+Realtime
+WebSocket/SSE
+Atualização de agenda, fila, internação e status sem recarregar.
+Observabilidade
+OpenTelemetry + Sentry + logs estruturados
+Correlação por request, organização e usuário.
+Infraestrutura
+Docker, CI/CD, ambientes dev/staging/prod
+Deploy reproduzível, backups e migração segura.
+4.1 Estrutura de monorepo sugerida
+ESTRUTURA
+apps/web • apps/api • apps/mobile (futuro) • packages/ui • packages/contracts • packages/config • packages/testing • docs/adr • infra/
+packages/contracts deve conter tipos, schemas e enums compartilhados, sem lógica de infraestrutura.
+packages/ui deve conter componentes reutilizáveis e acessíveis, sem regras específicas de um módulo.
+Cada módulo backend deve expor domínio, casos de uso, persistência, controladores e testes.
+Não importar diretamente entidades de banco no frontend; usar DTOs e contratos estáveis.
+4.2 Requisitos não funcionais
+Requisito
+Meta inicial
+Disponibilidade
+99,5% no piloto; arquitetura preparada para 99,9%.
+Performance
+P95 de API operacional abaixo de 500 ms; pesquisa comum abaixo de 1 s.
+Agenda
+Abrir visão semanal com dados usuais em até 2 s.
+Escalabilidade
+Suportar inicialmente 100 organizações e 1.000 usuários simultâneos sem reescrita.
+Backup
+Backup diário completo, incremental quando possível, teste periódico de restauração.
+Privacidade
+LGPD, minimização, consentimento, exportação e anonimização quando legalmente possível.
+Acessibilidade
+WCAG 2.1 AA nas funções principais; teclado e leitores de tela.
+Compatibilidade
+Chrome/Edge/Safari atuais; layout responsivo a partir de 360 px.
+Regionalização
+pt-BR, moeda BRL, timezone da unidade e formatos configuráveis.
+5. Modelo de dados fundamental
+Toda tabela de negócio deve conter id UUID, organization_id, created_at, updated_at e, quando aplicável, created_by, updated_by, unit_id, deleted_at/inactivated_at e version para controle otimista.
+Entidade
+Finalidade
+Organization
+Empresa cliente do SaaS.
+Unit
+Unidade física/operacional.
+User
+Conta autenticada.
+Role / Permission
+Autorização granular.
+StaffProfile
+Dados profissionais, conselho, especialidades e vínculo.
+Tutor
+Responsável pelo animal.
+TutorContact
+Telefones, e-mails e preferências.
+Address
+Endereço reutilizável.
+Patient
+Animal/paciente.
+PatientTutor
+Relação N:N com titularidade e permissões.
+ClinicalAlert
+Alergias, riscos e alertas ativos.
+Appointment
+Agendamento.
+AppointmentResource
+Sala, equipamento, profissional ou setor reservado.
+CheckIn / Queue
+Chegada e fila operacional.
+Encounter
+Atendimento clínico.
+Triage
+Triagem e sinais vitais.
+Anamnesis
+Anamnese versionada.
+PhysicalExam
+Exame físico versionado.
+Diagnosis
+Hipótese e diagnóstico.
+CarePlan
+Conduta/plano terapêutico.
+Prescription
+Receita ambulatorial.
+ExamOrder / ExamResult
+Solicitação e resultado.
+ProcedureRecord
+Procedimento executado.
+Document
+Documento clínico emitido.
+Hospitalization
+Internação.
+InpatientPrescription
+Prescrição hospitalar.
+MedicationAdministration
+Checagem de medicação.
+Bed / Ward
+Leito, baia e setor.
+InventoryItem / Batch
+Produto e lote.
+StockMovement
+Movimentação imutável de estoque.
+ControlledDrugLedger
+Livro de controlados.
+Service / PriceTable
+Catálogo e preços.
+Estimate / Invoice
+Orçamento e cobrança.
+Payment / CashSession
+Pagamento e caixa.
+Payable / Receivable
+Contas financeiras.
+CommissionRule / CommissionEntry
+Comissões.
+Plan / Subscription
+Planos de saúde/assinaturas.
+Message / Notification
+Comunicação e lembretes.
+AuditLog
+Trilha de auditoria.
+Attachment
+Arquivo com metadados e vínculo.
+5.1 Regras globais de integridade
+Um paciente pode ter vários tutores, mas deve existir um responsável principal ativo.
+CPF e e-mail não devem ser globalmente únicos entre organizações; a unicidade é contextual.
+Prontuário assinado não pode ser sobrescrito: correções devem gerar adendo e histórico.
+Movimentações de estoque e lançamentos financeiros são imutáveis; correções geram estorno vinculado.
+Status devem ser alterados por comandos/casos de uso, nunca por edição genérica.
+Toda referência a valor monetário deve usar decimal ou centavos inteiros, nunca float.
+Timestamps são armazenados em UTC e apresentados no timezone da unidade.
+Arquivos devem conter hash, mime type, tamanho, responsável e política de visibilidade.
+6. Design system e comportamento das telas
+O visual deverá seguir os mockups já definidos: navegação lateral azul-marinho, superfícies claras, acento roxo, cartões arredondados, hierarquia tipográfica forte e cores semânticas suaves. O design deve ser um sistema consistente, não páginas isoladas.
+Token
+Orientação
+Cor primária
+Roxo/índigo para ações principais e seleção.
+Navegação
+Azul-marinho escuro, alto contraste e estado ativo evidente.
+Sucesso
+Verde; nunca depender somente da cor, incluir texto/ícone.
+Atenção
+Âmbar; usado para atraso, pendência e risco não crítico.
+Crítico
+Vermelho; emergência, alergia, erro destrutivo ou dado clínico crítico.
+Espaçamento
+Escala consistente de 4/8/12/16/24/32 px.
+Formulários
+Label persistente, ajuda contextual, erro próximo e campos agrupados por objetivo.
+Tabelas
+Cabeçalho fixo quando necessário, filtros claros, seleção e ações por linha.
+Modal
+Usar apenas para tarefas curtas; fluxos longos devem abrir página ou drawer.
+Responsividade
+Desktop completo; tablet operacional; mobile com ações essenciais.
+6.1 Estados obrigatórios de componentes
+default, hover, focus, active, disabled e loading;
+campo válido, inválido, obrigatório e somente leitura;
+lista carregando, vazia, filtrada sem resultado, erro e offline;
+ação otimista com rollback quando apropriado;
+confirmação para cancelamento, exclusão lógica, estorno e finalização;
+skeleton para carregamentos estruturais e spinner apenas para ações curtas.
+7. Módulo 0 — Fundação, autenticação e configuração
+Este é o primeiro módulo técnico. Ele não é o primeiro fluxo visível para a clínica, mas é pré-requisito para todos os demais.
+Funcionalidade
+Requisitos
+Login
+E-mail/senha, recuperação, sessão segura, rate limit, bloqueio progressivo e MFA configurável.
+Organização
+Razão social, nome fantasia, CNPJ, contatos, logo, timezone, moeda e parâmetros.
+Unidades
+Endereço, horários, setores, salas, estoques, caixas, profissionais e feriados.
+Usuários
+Convite, ativação, inativação, função, unidade, vínculo profissional e sessão.
+Papéis e permissões
+Papéis padrão e personalizados; matriz de ações.
+Configurações clínicas
+Espécies, raças, sexos, pelagens, motivos, protocolos, modelos de documentos.
+Configurações comerciais
+Serviços, produtos, tabelas de preço, descontos e formas de pagamento.
+Auditoria
+Tela pesquisável por usuário, módulo, entidade, ação e período.
+Fluxos principais
+Criar organização → criar primeira unidade → cadastrar administrador → selecionar configurações iniciais.
+Administrador convida funcionário → funcionário define senha → aceita termos → recebe permissões.
+Administrador altera papel → sessões e caches de autorização são invalidados.
+Suporte acessa organização por impersonação → exige motivo → banner permanente → registro integral no log.
+8. Módulo 1 — Cadastros de tutores e pacientes
+8.1 Cadastro de tutor
+Nome completo / razão social
+CPF/CNPJ com validação e opção de não informado justificado
+Data de nascimento
+Telefones e WhatsApp
+E-mails
+Endereço completo
+Contato de emergência
+Preferência de canal e consentimentos
+Observações administrativas
+Situação: ativo, inativo, bloqueado para crédito
+Origem do cliente e tags
+Anexos e documentos
+Busca de duplicidade deve considerar CPF/CNPJ, telefone e e-mail dentro da organização. A IA deve sugerir possível duplicidade, mas jamais mesclar automaticamente.
+8.2 Cadastro de paciente
+Grupo
+Campos e comportamentos
+Identificação
+Nome, foto, espécie, raça, sexo, status reprodutivo, data de nascimento aproximada ou exata, cor/pelagem, microchip, pedigree e identificação externa.
+Dados físicos
+Peso atual, unidade, porte e escore corporal opcional.
+Responsáveis
+Tutor principal, cotutores, autorização para decisões e retirada.
+Saúde
+Alergias, doenças crônicas, medicações contínuas, restrições, comportamento, risco de fuga/agressividade.
+Preventivo
+Vacinas, vermífugo, antiparasitário, próximos lembretes.
+Administrativo
+Plano, convênio, tags, origem, situação e observações.
+Documentos
+Fotos, carteirinha, laudos e termos.
+Fluxos principais
+Pesquisar tutor → criar ou selecionar → cadastrar paciente → registrar alertas → salvar → oferecer agendamento.
+Na tela do tutor, exibir todos os pets, pendências, próximas vacinas, débitos e últimas visitas.
+Na tela do paciente, exibir cabeçalho clínico persistente e linha do tempo unificada.
+Troca de tutor principal deve preservar histórico e exigir motivo.
+9. Módulo 2 — Agenda, recursos e fila
+A agenda deve ser uma das melhores experiências do produto. Ela precisa combinar visão temporal, disponibilidade de recursos, contexto clínico e operação da recepção.
+Área
+Requisitos detalhados
+Visões
+Dia, semana, mês, lista e agenda por profissional/recurso.
+Filtros
+Unidade, profissional, setor, sala, serviço, espécie, status, prioridade, origem e plano.
+Recursos
+Profissional, sala, centro cirúrgico, equipamento, banho/tosa e internação.
+Agendamento
+Tutor/paciente, serviço, duração, profissional, data/hora, recurso, prioridade, origem, observação e lembrete.
+Recorrência
+Vacinas, sessões, retornos e tratamentos; editar ocorrência ou série.
+Disponibilidade
+Escala, bloqueios, intervalo, feriado, afastamento, duração e conflito.
+Status
+Rascunho, agendado, confirmado, chegou, aguardando, triagem, em atendimento, concluído, faltou, cancelado.
+Lista de espera
+Preferências de dia/hora e preenchimento de cancelamento.
+Encaixe
+Criar em intervalo permitido, registrar motivo e responsável.
+Comunicação
+Confirmação e lembretes por WhatsApp/e-mail/SMS com log.
+9.1 Fluxo de novo agendamento
+Buscar tutor/paciente; permitir cadastro rápido sem perder o contexto.
+Selecionar serviço; carregar duração, preço sugerido, requisitos e recursos.
+Selecionar unidade, profissional e recurso; consultar disponibilidade.
+Detectar conflitos e justificar exceção conforme permissão.
+Definir lembretes, observações, prioridade e origem.
+Salvar e enviar confirmação; criar evento e log de comunicação.
+9.2 Regras de conflito
+Não permitir sobreposição do mesmo profissional ou recurso, salvo permissão de encaixe.
+Considerar tempo de preparação e limpeza quando configurado.
+Bloqueio de agenda tem prioridade sobre disponibilidade padrão.
+Atendimento iniciado mantém vínculo mesmo após alteração do horário.
+Arrastar e soltar deve chamar o mesmo caso de uso do formulário, com validação completa.
+10. Módulo 3 — Atendimento clínico ambulatorial
+O atendimento é um fluxo guiado, mas não rígido. O profissional pode navegar entre etapas, salvar rascunho e finalizar somente quando os itens obrigatórios do tipo de atendimento estiverem completos.
+10.1 Estrutura da tela principal
+Cabeçalho persistente do paciente: foto, identificação, tutor, peso, alertas e visita atual.
+Abas: Visão geral, Triagem, Anamnese, Exame físico, Diagnóstico, Conduta, Receita, Exames, Procedimentos, Documentos, Orçamento, Retorno, Histórico.
+Coluna lateral: sinais vitais recentes, ações rápidas, pendências e histórico resumido.
+Linha do tempo do atendimento com autor e horário de cada ação.
+Autosave seguro com indicador de salvamento e recuperação de rascunho.
+10.2 Triagem
+Grupo
+Campos
+Entrada
+Motivo, queixa principal, prioridade, origem e observações.
+Sinais vitais
+Temperatura, FC, FR, TPC, hidratação, pressão, glicemia, SpO2, peso e dor.
+Alertas
+Dispneia, convulsão, sangramento, colapso, dor intensa, alteração neurológica e outros.
+Classificação
+Normal, prioritário, urgente e emergência, configurável por unidade.
+Linha do tempo
+Chegada, triagem iniciada/concluída e encaminhamento.
+Valores fora da faixa de referência devem ser destacados, mas a faixa varia por espécie, idade e contexto. O sistema não deve diagnosticar automaticamente.
+10.3 Anamnese
+Queixa principal e evolução;
+histórico médico e cirúrgico;
+alimentação, ingestão de água, urina e fezes;
+ambiente, acesso à rua, contactantes e viagens;
+comportamento e alterações recentes;
+vacinação, vermifugação e ectoparasitas;
+alergias, reações adversas e medicamentos em uso;
+sistemas direcionados conforme espécie e queixa;
+anexos de fotos, vídeos e documentos.
+10.4 Exame físico
+Estado geral e consciência
+mucosas, TPC e hidratação
+auscultação cardíaca e pulmonar
+palpação abdominal
+pele e anexos
+linfonodos
+sistema neurológico
+sistema musculoesquelético
+olhos, ouvidos e cavidade oral
+escore corporal e escala de dor
+campos customizados por especialidade
+10.5 Diagnóstico e conduta
+Elemento
+Regra
+Hipóteses
+Lista ordenada, probabilidade e justificativa opcional.
+Diagnóstico principal
+Pode ser provisório ou definitivo; termo clínico e código quando disponível.
+Classificação
+Agudo/crônico, primário/secundário, recorrente e gravidade.
+Prognóstico
+Favorável, reservado, desfavorável ou indeterminado.
+Conduta
+Tratamento, dieta, cuidados, restrições e orientações.
+Plano
+Reavaliação, parâmetros de monitoramento e sinais de alerta para o tutor.
+Assinatura
+Finalização clínica exige profissional habilitado; versão assinada fica imutável.
+10.6 Receita veterinária
+Selecionar medicamento por catálogo ou digitação livre conforme permissão.
+Campos: concentração, apresentação, dose, unidade, via, frequência, duração, quantidade e instruções.
+Modelos pessoais e institucionais, sempre editáveis antes da emissão.
+Gerar PDF com identificação do paciente, tutor, clínica, veterinário, CRMV e assinatura.
+Receitas de medicamentos sujeitos a controle devem seguir fluxo e modelos separados, sem presumir conformidade legal automática.
+Registrar versão, emissão, reimpressão, cancelamento e compartilhamento.
+10.7 Exames e procedimentos
+Catálogo configurável por laboratório, imagem e unidade.
+Solicitação com material, preparo, urgência, laboratório, hipótese e observação.
+Status: solicitado, autorizado, coletado, enviado, processando, disponível, revisado, cancelado.
+Resultados estruturados e arquivo; valores críticos exigem alerta e confirmação.
+Procedimentos registram horário, responsável, local, materiais, lote, custo e intercorrência.
+Consumo de materiais pode gerar saída automática de estoque após confirmação.
+10.8 Documentos, orçamento, retorno e finalização
+Documentos: atestado, declaração, encaminhamento, pedido de exame, termo e modelos personalizados.
+Orçamento recebe serviços, procedimentos e produtos do atendimento; permite desconto conforme alçada.
+Retorno registra prazo, data opcional, motivo, tarefas e lembretes.
+Finalização mostra resumo clínico, itens cobrados, pendências, documentos e próximos passos.
+Não permitir encerramento com cobrança obrigatória sem tratamento definido pela configuração: bloquear ou gerar pendência.
+Após finalizar, alterações clínicas viram adendo; alterações financeiras seguem estorno ou ajuste autorizado.
+10.9 Critérios de aceite do atendimento
+Do check-in à finalização sem recarregar páginas manualmente.
+Dois usuários não sobrescrevem silenciosamente o mesmo registro.
+Alerta clínico aparece em todos os pontos de decisão.
+Rascunho é recuperado após falha de conexão ou sessão expirada.
+PDFs preservam dados e assinatura da versão emitida.
+Itens clínicos e financeiros têm vínculos rastreáveis, mas podem ser corrigidos por estorno/adendo.
+11. Módulo 4 — Internação e hospitalização
+A internação deve funcionar 24 horas, com foco em segurança de medicação, passagem de plantão e visualização rápida do estado dos pacientes.
+Área
+Requisitos
+Admissão
+Origem, motivo, diagnóstico, risco, setor, baia, responsável, previsão e termo.
+Mapa
+Visão por setor/baia, ocupação, isolamento, criticidade e profissional.
+Prescrição
+Medicamentos, fluidos, alimentação, aferições, cuidados e procedimentos com horários.
+Execução
+Checagem por horário, executor, atraso, motivo de não execução e dupla checagem configurável.
+Evolução
+Modelo SOAP ou livre, sinais vitais, balanço hídrico, dor e anexos.
+Plantão
+Resumo automático + edição humana, pendências, intercorrências e prioridades.
+Visita
+Agendamento, registro, orientações e comunicação com tutor.
+Alta
+Resumo, receita, cuidados, retorno, cobrança e liberação da baia.
+Desfechos
+Alta, transferência, evasão, óbito e outros, com documentos específicos.
+11.1 Segurança de medicação
+Exibir paciente, medicamento, dose, via, horário e observações antes da checagem.
+Registrar lote quando o item exige rastreabilidade.
+Alertar alergia ou restrição sem bloquear silenciosamente; exigir justificativa e permissão para override.
+Atraso deve ser visível na central de tarefas.
+Alteração de prescrição preserva horários anteriores e cria nova versão.
+Medicamento não administrado exige motivo padronizado e comentário quando necessário.
+12. Módulo 5 — Estoque, compras e controlados
+Submódulo
+Requisitos
+Catálogo
+Produto, serviço, medicamento, princípio ativo, apresentação, unidade e conversões.
+Lotes
+Fornecedor, nota, lote, validade, custo, quantidade, localização e status.
+Movimentos
+Entrada, consumo, venda, transferência, ajuste, perda, devolução e estorno.
+Requisição
+Solicitação interna, separação, entrega e confirmação.
+Inventário
+Contagem cega, divergência, aprovação e ajuste rastreado.
+Compras
+Necessidade, cotação, pedido, recebimento e vínculo com conta a pagar.
+Alertas
+Estoque mínimo, vencimento, ruptura, lote bloqueado e consumo anormal.
+Controlados
+Livro por movimentação, responsável, paciente, prescrição, lote, saldo e impressão.
+Custos
+Custo médio/por lote, sem expor a perfis não autorizados.
+O saldo é consequência das movimentações, não um número editável. Ajustes devem criar movimentos de correção. O consumo deve usar FEFO por padrão, mas permitir seleção autorizada de lote.
+13. Módulo 6 — Financeiro, caixa e faturamento
+Área
+Requisitos
+Orçamento
+Versões, validade, autorização, desconto, itens e conversão em cobrança.
+Cobrança
+Fatura por atendimento, internação, venda ou assinatura.
+Pagamento
+Dinheiro, PIX, cartão, link, boleto, crédito interno e combinação.
+Parcelamento
+Parcelas, vencimentos, taxas e recebimento parcial.
+Caixa
+Abertura, suprimento, sangria, recebimento, estorno e fechamento.
+Contas a receber
+Baixa, atraso, renegociação, cobrança e conciliação.
+Contas a pagar
+Fornecedor, categoria, centro de custo, competência, anexos e aprovação.
+Conciliação
+Importação de extrato/maquininha, correspondência e divergência.
+Comissões
+Regra por serviço/produto/profissional, competência, estorno e fechamento.
+DRE e indicadores
+Receita, custo, margem, despesas e visão por unidade/período.
+Split manual
+Conta de espera, alocação manual a fornecedores/prestadores e rastreabilidade.
+13.1 Regras financeiras críticas
+Nenhum pagamento pode ser apagado; usar estorno vinculado.
+Desconto exige motivo e alçada.
+Fechamento de caixa bloqueia edição comum do período.
+Competência e fluxo de caixa devem ser armazenados separadamente.
+Comissão deve considerar cancelamento, estorno e inadimplência conforme regra.
+Split manual não altera artificialmente faturamento fiscal; é apenas alocação gerencial/financeira e deve ser validado com contabilidade.
+14. Módulo 7 — Planos, convênios e assinaturas
+Cadastro de plano, faixa, mensalidade, carência, cobertura, periodicidade e limites.
+Assinatura por tutor e pets, dependentes, desconto progressivo e vigência.
+Elegibilidade verificada no orçamento e atendimento.
+Autorização prévia quando aplicável.
+Controle de consumo, coparticipação quando existir e itens não cobertos.
+Cobrança recorrente, inadimplência, suspensão, cancelamento e reativação.
+Carteirinha digital e histórico de cobertura.
+Separar planos próprios da clínica e convênios externos.
+15. Módulo 8 — Comunicação e experiência do tutor
+Canal/área
+Funcionalidades
+WhatsApp
+Confirmação, lembrete, documentos, retorno, cobrança e mensagens transacionais.
+E-mail/SMS
+Fallback e comunicações configuradas.
+Central de mensagens
+Histórico por tutor/paciente, modelos e opt-out.
+Portal/App
+Pets, agenda, documentos, vacinas, faturas, pagamentos e orientações liberadas.
+Consentimentos
+Registro de finalidade, versão do termo e revogação.
+Notificações internas
+Tarefas, resultados, atrasos, estoque e financeiro.
+Mensagens clínicas devem indicar o autor e não podem substituir orientação emergencial. Informações sensíveis só devem ser enviadas ao contato autorizado.
+16. Módulo 9 — Relatórios, dashboards e inteligência
+Agenda: ocupação, faltas, cancelamentos, tempo de espera e conversão.
+Clínico: atendimentos, retornos, diagnósticos, exames, internações e desfechos.
+Estoque: giro, ruptura, perda, vencimento, consumo e inventário.
+Financeiro: faturamento, recebimento, inadimplência, ticket, margem, DRE e fluxo de caixa.
+Equipe: produtividade com contexto, sem métricas clínicas simplistas.
+Planos: vidas, receita recorrente, utilização, sinistralidade gerencial e churn.
+Auditoria: ações sensíveis, estornos, descontos, alterações de prontuário e acesso.
+Exportação CSV/XLSX/PDF respeitando permissões e filtros.
+16.1 Inteligência artificial — fase posterior
+LIMITES DA IA
+IA pode resumir prontuário, sugerir organização de texto, sinalizar inconsistências e auxiliar interpretação. Nunca deve prescrever, diagnosticar ou executar decisão clínica automaticamente. Toda saída clínica deve ser apresentada como apoio e exigir revisão profissional.
+Resumo da linha do tempo com links para fontes.
+Ditado e estruturação de anamnese com confirmação.
+Sugestão de campos ausentes e possíveis inconsistências.
+Análise de exames com referência explícita e aviso de limitação.
+Previsão operacional de demanda, estoque e agenda.
+Detecção de duplicidade, fraude ou anomalia com revisão humana.
+17. Fluxos ponta a ponta obrigatórios
+Fluxo
+Cadeia completa
+Consulta agendada
+Cadastro/localização do tutor → paciente → agendamento → confirmação → check-in → triagem → atendimento → receita/exames/procedimentos → orçamento → pagamento → retorno → comunicação.
+Emergência sem cadastro
+Cadastro mínimo → classificação de risco → atendimento imediato → completar cadastro → cobrança e documentos.
+Internação após consulta
+Atendimento → decisão de internar → orçamento/termo → escolha de setor/baia → prescrição → execução → evoluções → alta → cobrança.
+Resultado de exame
+Solicitação → autorização → coleta → processamento → resultado → alerta ao veterinário → revisão → liberação ao tutor.
+Consumo de medicamento
+Prescrição/procedimento → seleção de lote → administração/execução → movimento de estoque → lançamento financeiro → auditoria.
+Venda de produto
+Tutor/paciente opcional → produto/lote → preço/desconto → pagamento → saída de estoque → comprovante.
+Cancelamento com pagamento
+Localizar cobrança → calcular política → estorno/reembolso/crédito → ajuste de comissão → log.
+Plano de saúde
+Adesão → carência → elegibilidade → atendimento coberto → consumo/limite → cobrança recorrente → relatório.
+Troca de plantão
+Internações ativas → resumo automático → pendências → conferência do profissional → aceite do próximo plantão.
+18. Padrões de API, validação e eventos
+API versionada em /api/v1.
+Respostas de erro com code estável, mensagem humana, detalhes de campo e correlation_id.
+Paginação por cursor em listas grandes; offset apenas onde suficiente.
+Filtros e ordenação documentados.
+Idempotency-Key em pagamentos, comunicações e ações suscetíveis a repetição.
+Controle de versão otimista com conflito 409 em registros editáveis.
+Eventos de domínio para integrações: appointment.created, encounter.closed, stock.moved, payment.received, exam.resulted etc.
+Webhooks assinados, repetição com backoff e log de entrega.
+18.1 Máquinas de estado essenciais
+Entidade
+Estados sugeridos
+Appointment
+draft → scheduled → confirmed → checked_in → waiting → in_triage → in_service → completed | no_show | cancelled
+Encounter
+draft → in_progress → awaiting_results → completed → amended
+ExamOrder
+requested → authorized → collected → sent → processing → resulted → reviewed → released | cancelled
+Hospitalization
+planned → admitted → active → discharge_planned → discharged | transferred | deceased | cancelled
+Invoice
+draft → open → partially_paid → paid | overdue | cancelled | refunded
+PurchaseOrder
+draft → approved → ordered → partially_received → received | cancelled
+19. Estratégia de testes e auditoria pelo Codex
+Nível
+Cobertura esperada
+Unitário
+Regras de negócio, cálculos, transições de status, permissões e validações.
+Integração
+Banco real em container, migrations, repositórios, filas e armazenamento.
+Contrato
+Frontend e backend aderem aos schemas compartilhados.
+E2E
+Fluxos ponta a ponta prioritários em navegador.
+Segurança
+Isolamento multi-tenant, autorização, upload, injeção, rate limit e sessão.
+Performance
+Agenda, busca global, timeline e relatórios mais usados.
+Regressão visual
+Componentes e telas principais em múltiplos tamanhos.
+Backup/restore
+Restaurar ambiente de teste e validar integridade.
+19.1 Checklist de auditoria para o Codex
+Encontrar violações de isolamento entre organizações.
+Procurar endpoints sem autorização ou validação backend.
+Identificar condições de corrida, double-submit e ausência de idempotência.
+Auditar cálculos monetários, arredondamento, estornos e comissões.
+Revisar migrations destrutivas e queries N+1.
+Verificar perda de histórico em edições clínicas e financeiras.
+Criar testes para bugs encontrados antes de corrigir.
+Analisar dependências vulneráveis, segredos e configurações inseguras.
+Revisar acessibilidade, responsividade e estados de erro.
+Gerar relatório por severidade: crítico, alto, médio, baixo e melhoria.
+20. Ordem de implementação recomendada
+Sprint/Bloco
+Entrega
+0
+Monorepo, CI, banco, autenticação, organização, unidade, auditoria e design system.
+1
+Usuários, papéis, permissões e configurações básicas.
+2
+Tutores, pacientes, alertas clínicos, busca global e timeline.
+3
+Agenda, recursos, disponibilidade, confirmação e fila/check-in.
+4
+Triagem, anamnese, exame físico e rascunho do atendimento.
+5
+Diagnóstico, conduta, receita, exames, procedimentos e documentos.
+6
+Orçamento simples, pagamento, retorno e finalização do atendimento.
+7
+Piloto interno: correções, observabilidade, backup e treinamento.
+8–10
+Internação e prescrição hospitalar.
+11–13
+Estoque, lotes, compras e controlados.
+14–17
+Financeiro completo, caixa, conciliação, comissões e DRE.
+18+
+Planos, portal/app, integrações, fiscal, relatórios avançados e IA.
+Cada bloco deve terminar com tag de versão, changelog, demonstração e banco migrável. O piloto não deve aguardar todos os módulos; ele começa após o núcleo clínico e cobrança simples.
+21. Prompt mestre para iniciar o Antigravity
+PROMPT — COPIAR E COLAR
+Você é o engenheiro principal do produto VetFlow. Leia integralmente o documento “Especificação Mestre VetFlow”. Não tente construir todo o sistema de uma vez. Comece pelo bloco solicitado e trate o documento como fonte de verdade.
+Antes de codificar:
+1. Resuma o escopo do bloco e suas dependências.
+2. Liste decisões e suposições. Não esconda dúvidas.
+3. Proponha arquitetura, entidades, migrations, endpoints, permissões, telas e testes.
+4. Divida o trabalho em tarefas pequenas e ordenadas.
+Durante a implementação:
+- Preserve multi-tenant, auditoria, integridade e versionamento.
+- Regras críticas devem estar no backend.
+- Não use mocks permanentes.
+- Implemente estados de loading, vazio, erro, sucesso, permissão e concorrência.
+- Adicione testes antes ou junto das regras.
+- Não avance deixando lint, typecheck, migration ou testes quebrados.
+Ao concluir:
+- Execute todos os testes e informe comandos/resultados.
+- Liste arquivos alterados.
+- Atualize documentação e contratos.
+- Relate riscos e pendências.
+- Prepare o repositório para auditoria independente pelo Codex.
+Agora implemente somente: [INSERIR BLOCO/MÓDULO].
+21.1 Prompt de continuação por tarefa
+PROMPT DE EXECUÇÃO
+Continue a partir do estado atual do repositório. Leia o plano e o relatório da última execução. Implemente apenas a próxima tarefa não concluída do módulo atual. Antes de alterar arquivos, confirme os critérios de aceite afetados. Depois, execute testes direcionados e a suíte relevante. Não modifique módulos fora do escopo, salvo dependência explícita e documentada.
+21.2 Prompt para correção pelo Codex
+PROMPT DE AUDITORIA
+Audite profundamente o módulo [NOME] do VetFlow. Não presuma que o código está correto. Verifique arquitetura, segurança multi-tenant, permissões, integridade, concorrência, migrations, contratos, regras de negócio, cálculos, UX, acessibilidade, performance e testes. Reproduza problemas quando possível. Para cada falha, informe severidade, impacto, arquivos, passos de reprodução e correção recomendada. Crie um teste que falhe antes da correção e passe depois. Não faça mudanças cosméticas enquanto existirem problemas críticos ou altos.
+22. Matriz final de critérios de aceite do produto
+Dimensão
+Critério
+Isolamento
+Usuário de uma organização não consegue consultar, inferir ou alterar dados de outra.
+Prontuário
+Registro finalizado preserva versão, autor, horário e adendos.
+Agenda
+Conflitos, escalas, bloqueios, recursos e status funcionam em desktop e mobile.
+Atendimento
+Fluxo completo do check-in à finalização, com rascunho e recuperação.
+Internação
+Prescrição e administração rastreáveis por horário, executor e lote.
+Estoque
+Saldo reconciliável integralmente por movimentos.
+Financeiro
+Faturas, pagamentos, estornos, caixa e comissões são auditáveis.
+Documentos
+PDFs têm versão, assinatura, dados completos e compartilhamento registrado.
+Comunicação
+Mensagem tem destinatário, consentimento, status e vínculo com evento.
+Segurança
+Sem segredo no repositório; uploads, sessões e permissões protegidos.
+Operação
+Logs, métricas, alertas, backups e recuperação documentados.
+Qualidade
+CI verde, cobertura adequada a riscos e testes E2E dos fluxos principais.
+Usabilidade
+Equipe clínica executa tarefas prioritárias com baixa carga cognitiva.
+Comercialização
+Nova organização pode ser configurada sem alterar o código-fonte.
+23. Riscos prioritários e mitigação
+Risco
+Consequência
+Mitigação
+Gerar tudo de uma vez
+Código incoerente e integração frágil.
+Entrega por módulos, contratos e auditoria a cada bloco.
+Prontuário editável sem versão
+Risco clínico e jurídico.
+Imutabilidade após assinatura e adendos.
+Permissão apenas no frontend
+Vazamento e fraude.
+Autorização obrigatória no backend e testes multi-tenant.
+Estoque como saldo editável
+Divergências não rastreáveis.
+Ledger de movimentos imutáveis.
+Financeiro com float
+Erros de centavos e conciliação.
+Decimal/centavos inteiros e testes.
+Automação clínica excessiva
+Decisões inseguras.
+IA apenas assistiva, revisão profissional.
+Customização por cliente no código
+Produto impossível de escalar.
+Configuração, templates e feature flags.
+Falta de piloto real
+UX inadequada.
+Uso precoce na 4 Patas e feedback estruturado.
+Sem observabilidade
+Falhas difíceis de detectar.
+Logs, métricas, tracing e alertas desde o núcleo.
+24. Apêndice — Histórias de usuário prioritárias
+Como recepcionista, quero localizar tutor pelo nome, CPF ou telefone para não criar cadastros duplicados.
+Como recepcionista, quero ver horários livres por profissional e sala para agendar sem conflito.
+Como veterinário, quero visualizar alertas antes de prescrever para reduzir riscos.
+Como veterinário, quero salvar rascunho automaticamente para não perder o prontuário.
+Como auxiliar, quero ver medicações atrasadas para priorizar cuidados.
+Como estoquista, quero rastrear produto por lote e validade para evitar uso inadequado.
+Como financeiro, quero estornar sem apagar o lançamento para manter auditoria.
+Como gestor, quero comparar faturamento e margem por unidade sem expor custos a todos.
+Como tutor, quero receber documentos e lembretes no canal autorizado.
+Como suporte, quero investigar um erro usando correlation_id sem acessar dados desnecessários.
+25. Apêndice — Cenários de teste ponta a ponta
+Cenário
+Resultado esperado
+Novo cliente
+Criar tutor e pet, agendar, confirmar, check-in, triagem, consulta, receita, cobrança PIX, retorno e mensagem.
+Duplicidade
+Tentar cadastrar tutor com telefone existente; apresentar candidatos e manter decisão humana.
+Conflito de agenda
+Agendar mesmo profissional no mesmo horário; bloquear e permitir encaixe apenas com permissão.
+Concorrência clínica
+Dois profissionais editam o mesmo rascunho; detectar versão e impedir perda silenciosa.
+Alergia
+Prescrever item relacionado a alerta; exibir aviso e exigir justificativa quando permitido.
+Exame crítico
+Registrar resultado crítico; alertar responsável e exigir confirmação de leitura.
+Internação
+Admitir, prescrever, checar doses, atrasar uma tarefa, evoluir, trocar plantão e dar alta.
+Lote vencido
+Tentar consumir lote vencido; bloquear e sugerir lote válido.
+Estorno
+Receber parcialmente, cancelar item, estornar e recalcular caixa/comissão.
+26. Encerramento e próxima ação
+A primeira execução recomendada é o Bloco 0: fundação do monorepo, autenticação, multiempresa, unidades, usuários, permissões, auditoria e design system. Em seguida, construir cadastros, agenda e atendimento na ordem estabelecida.
+PRÓXIMO COMANDO AO ANTIGRAVITY
+Implemente o Bloco 0 desta especificação. Primeiro entregue o plano técnico, a árvore do repositório, o modelo inicial de dados, a matriz de permissões e os critérios de aceite. Somente depois inicie o código.
+27. Atualização de escopo — Versão 2.0
+Esta versão substitui a Versão 1.0 como fonte de verdade do projeto. Todo agente deve considerar as seções anteriores em conjunto com as ampliações abaixo. Em caso de conflito, prevalece a regra mais recente e mais específica desta Versão 2.0.
+27.1 Novos domínios oficiais
+Módulo de laboratório interno, com coleta, rastreabilidade, execução, validação e laudo.
+Módulo fiscal e central de integração contábil.
+Portal da contabilidade com login, permissões e documentos organizados por competência.
+Contas a pagar e contas a receber automatizados e integrados aos demais módulos.
+Estoque inteligente fracionado, com baixa automática por serviço, procedimento, exame, internação e venda.
+Gestão de prestadores, plantões, comissões, repasses, documentos fiscais e portal individual.
+Integração PagHealth para transações, conciliação, taxas, recebíveis, webhooks e splits.
+Portal do tutor em web responsiva e aplicativo/PWA.
+Modo TV da internação e operação móvel do plantonista.
+Módulo de documentos inteligentes com preenchimento automático, versionamento e assinaturas eletrônicas.
+27.2 Regra de evolução do escopo
+Toda nova ideia aprovada deve ser incluída primeiro no REGISTRO_DE_ESCOPO.md, receber identificador, módulo responsável, prioridade, dependências e versão-alvo. O Antigravity não deve implementar ideias mencionadas informalmente sem que estejam registradas em especificação aprovada.
+28. Mapa oficial de módulos da plataforma
+Código
+Módulo
+Responsabilidade principal
+00
+Fundação, segurança e configurações
+Autenticação, multiempresa, multiunidade, permissões, auditoria, integrações.
+01
+Cadastros centrais
+Tutores, pacientes, responsáveis, profissionais, fornecedores, serviços e recursos.
+02
+Agenda e recepção
+Disponibilidade, agendamentos, check-in, fila, confirmação e chegada à clínica.
+03
+Atendimento clínico
+Triagem, anamnese, exame, diagnóstico, conduta, receita, exames e alta.
+04
+Internação e modo TV
+Leitos, prescrições, tarefas, parâmetros, alertas, boletins, visitas e alta.
+05
+Laboratório interno
+Amostras, filas, equipamentos, resultados, laudos e insumos.
+06
+Imagem e exames externos
+Pedidos, agenda de imagem, anexos, laudos e integração externa.
+07
+Estoque inteligente e farmácia
+Lotes, fracionamento, fichas técnicas, baixa automática e controlados.
+08
+Compras e fornecedores
+Cotações, pedidos, recebimento, notas de entrada e contas a pagar.
+09
+Financeiro e caixa
+Orçamentos, caixa, contas a pagar/receber, conciliação, DRE e inadimplência.
+10
+Fiscal
+Documentos fiscais, regras tributárias, emissão, cancelamento e exportações.
+11
+Portal da contabilidade
+Competências, documentos, conferência, pendências e relatórios.
+12
+Prestadores e força de trabalho
+Contratos, escalas, plantões, presença, comissões, notas e repasses.
+13
+Portal do prestador
+Ponto/presença, plantões, tarefas, internação, valores e documentos.
+14
+PagHealth e pagamentos
+Transações, webhooks, conciliação, taxas, recebíveis, links e splits.
+15
+Planos, convênios e assinaturas
+Coberturas, carências, recorrência, autorizações e consumo.
+16
+Portal do tutor
+Cadastro, pets, agenda própria, histórico, vacinas, pagamentos e jornada até a clínica.
+17
+Documentos e assinaturas
+Modelos inteligentes, preenchimento, envio, assinatura e evidências.
+18
+Comunicação e CRM
+WhatsApp, e-mail, lembretes, campanhas, consentimentos e histórico.
+19
+Relatórios, BI e IA
+Indicadores, alertas, previsão, análise operacional e apoio clínico.
+20
+Administração global
+Configurações, catálogo, permissões, logs, integrações e suporte.
+29. Módulo 16 — Portal do Tutor
+O Portal do Tutor será uma experiência separada do painel interno. Ele deve funcionar em navegador responsivo e ser preparado para aplicativo/PWA, usando a mesma API e o mesmo modelo de permissões. O tutor visualiza somente dados próprios e dados dos animais aos quais possui vínculo ativo.
+29.1 Cadastro e acesso
+Cadastro autônomo do tutor com nome, CPF, telefone, e-mail, endereço, senha, aceite de termos e consentimentos.
+Validação de telefone e e-mail por código; recuperação de senha; autenticação biométrica no aplicativo quando suportada.
+Detecção de cadastro existente por CPF, telefone ou e-mail, evitando duplicação. O usuário deve reivindicar ou vincular o cadastro já existente mediante validação.
+Cadastro de um ou mais animais com foto, nome, espécie, raça, sexo, nascimento estimado, cor, peso informado, microchip, alertas e observações.
+Fluxo de aprovação quando o animal já existir na clínica ou quando houver conflito de responsável.
+Possibilidade de adicionar responsável secundário, compartilhar acesso e revogar compartilhamento.
+29.2 Página inicial
+Cartões dos animais, próximos agendamentos, pendências, lembretes de vacinação, documentos aguardando assinatura e valores a pagar.
+Botões rápidos: Marcar atendimento, Estou indo para a clínica, Pagar, Enviar documento, Ver vacinas e Falar com a clínica.
+Notificações de exames liberados, boletins de internação, retornos e cobranças.
+29.3 Agenda própria do tutor
+O tutor não visualiza a agenda interna, nomes de outros pacientes, ocupação de profissionais ou bloqueios. O sistema apresenta apenas opções de datas e horários calculadas pelo backend conforme serviço, unidade, profissional opcional, duração, espécie e regras da clínica.
+Marcar consulta, retorno, vacinação, exames, banho/tosa e outros serviços habilitados pela clínica.
+Selecionar animal, unidade, serviço, motivo, profissional quando permitido, data e horário disponível.
+Responder perguntas prévias configuradas por serviço e anexar fotos ou documentos.
+Reagendar ou cancelar conforme política e prazo configurados.
+Entrar em lista de espera e aceitar antecipação de horário.
+Receber confirmação e lembretes, realizar pré-check-in e acompanhar status da solicitação.
+29.4 Perfil individual do animal
+Dados cadastrais, foto, identificação, tutor(es), alertas públicos autorizados e QR Code.
+Linha do tempo com atendimentos liberados, exames, receitas, documentos, procedimentos, internações e vacinações.
+Exames anexados ou laudos validados aparecem automaticamente quando o profissional marcar o item como liberado ao tutor.
+Arquivos sensíveis podem exigir aceite, senha ou validação adicional.
+Carteira virtual de vacinação com vacina, fabricante, lote, validade, data, reforço, estabelecimento e profissional responsável.
+Possibilidade de baixar comprovantes e compartilhar itens específicos.
+29.5 QR Code público e carteira física
+Cada animal poderá possuir um QR Code permanente impresso na carteira física. O QR Code deve apontar para uma URL pública não adivinhável e revogável. A página pública não exige login, mas mostra apenas informações autorizadas pelo tutor e pela clínica.
+Foto, nome do animal, espécie, raça e identificação básica.
+Status de vacinação e registros de vacinas autorizados, sem revelar dados financeiros ou prontuário completo.
+Contato de emergência opcional e mensagem de animal perdido, quando ativada.
+Validação visual de autenticidade do registro e data da última atualização.
+Botão para o tutor revogar, regenerar ou alterar a visibilidade do QR Code.
+29.6 Pagamentos pelo portal
+Visualizar orçamentos, cobranças, parcelas, recibos, notas e pagamentos pendentes.
+Pagar por PIX, link, cartão ou métodos disponibilizados pela integração PagHealth.
+Pagamento total ou parcial apenas quando permitido pela clínica.
+Atualização automática do status por webhook, sem depender de confirmação manual.
+Exibir valor bruto, descontos, juros, parcelas, status e comprovante; nunca mostrar regras internas de split ou comissão.
+29.7 Ação “Estou indo para a clínica”
+O tutor escolhe o animal e informa o motivo: atendimento agendado, urgência, retirada de produto/exame ou outro.
+O sistema estima chegada usando localização somente com consentimento e nunca exige compartilhamento contínuo.
+A recepção recebe aviso com previsão, telefone, paciente, motivo e alertas relevantes.
+O recurso não garante atendimento imediato e deve exibir orientação configurável para emergências.
+A chegada pode gerar pré-check-in, mas a recepção confirma o check-in definitivo.
+29.8 Outros recursos previstos
+Atualização cadastral sujeita a validação quando alterar dados críticos.
+Solicitação de segunda via, documentos, receitas e resultados.
+Acompanhamento de internação por boletins aprovados, fotos autorizadas e mensagens.
+Consentimentos, assinaturas, preferências de comunicação e gestão de privacidade.
+Canal de suporte, avaliação do atendimento e notificações configuráveis.
+30. Ampliação do Módulo 04 — Internação, modo TV e execução pelo plantonista
+30.1 Modo TV da internação
+O modo TV é um painel operacional em tela cheia, legível à distância e sem dados financeiros. Deve possuir autenticação de dispositivo, sessão restrita e configuração por setor. Não deve expor telefone, CPF ou informações desnecessárias do tutor.
+Exibir pacientes internados por baia/leito, foto ou avatar, nome, espécie, criticidade, isolamento e veterinário responsável.
+Linha do tempo em tempo real com próximas medicações, parâmetros, alimentação, exames, procedimentos e tarefas.
+Eventos próximos mudam de cor progressivamente: futuro, atenção, no horário, atrasado e crítico.
+Quando uma medicação ou tarefa obrigatória atingir o horário, o cartão deve piscar em vermelho e emitir sinal sonoro.
+O alerta permanece até haver ação válida: administrado, não administrado com justificativa, adiado mediante permissão ou cancelado pelo veterinário.
+O simples clique na TV não confirma execução. A confirmação deve ocorrer no Portal do Prestador autenticado, identificando executor, data/hora e dispositivo.
+Modo silencioso temporário somente com permissão e registro de auditoria; alertas críticos não podem ser silenciados indefinidamente.
+Reconexão automática, relógio sincronizado no servidor, atualização por WebSocket e fallback por polling.
+Em falha de internet, indicar claramente que os dados podem estar desatualizados e manter a última grade visível sem permitir confirmação falsa.
+30.2 Portal operacional do auxiliar/plantonista
+Lista dos pacientes e tarefas atribuídos ao plantão atual.
+Leitura da prescrição vigente, sem permissão para criar ou alterar prescrição médica.
+Registro de administração com checagem de paciente, medicamento, dose, via, horário e observação.
+Registro de parâmetros, alimentação, eliminações, balanço hídrico, dor, comportamento e intercorrências.
+Anexar fotos, vídeos curtos e arquivos conforme política da clínica.
+Leitura e registro por QR Code do leito, paciente ou medicamento como camada adicional de segurança.
+Permitir registrar “não administrado” somente com motivo obrigatório; eventos relevantes notificam o veterinário.
+Bloquear registro retroativo além da janela configurada, salvo autorização e justificativa.
+Funcionar em celular e tablet; considerar fila offline controlada, com carimbo local e reconciliação segura.
+30.3 Prescrição, aprazamento e segurança
+A prescrição é criada, alterada, suspensa ou cancelada apenas por médico veterinário autorizado.
+Toda alteração gera nova versão, preservando a anterior e registrando autor, motivo e horário.
+O aprazamento gera tarefas; alterações futuras não podem apagar administrações já registradas.
+Aplicar os “certos” da medicação: paciente, medicamento, dose, via, horário, registro e responsável.
+Dose em mL deve ser calculada a partir de concentração e dose prescrita, mas sempre exibida para conferência humana.
+Alertar sobre alergias, duplicidades, dose fora de faixa configurada e interação cadastrada, sem substituir decisão médica.
+30.4 Boletim de internação com aprovação
+O auxiliar cria um rascunho estruturado com alimentação, eliminações, comportamento, parâmetros, medicações e observações autorizadas.
+O sistema pode montar texto inicial a partir dos registros, sempre marcado como rascunho não enviado.
+O veterinário recebe fila de aprovação, revisa, edita, acrescenta orientação e aprova ou devolve para correção.
+Somente boletim aprovado pode ser enviado ao tutor por portal, WhatsApp ou e-mail.
+Registrar versão enviada, autor do rascunho, aprovador, alterações, horário, canal e status de entrega.
+Fotos e vídeos exigem seleção e aprovação explícita; dados internos, custos e anotações privadas não entram automaticamente.
+31. Módulo 17 — Documentos inteligentes e assinaturas
+31.1 Biblioteca de modelos
+Upload de DOCX, PDF ou imagem escaneada como fonte de modelo.
+Conversão assistida para modelo digital editável, preservando a aparência quando possível.
+Mapeamento de campos dinâmicos: tutor, paciente, profissional, unidade, atendimento, internação, valores, datas e testemunhas.
+Editor visual com campos de texto, seleção, checkbox, data, assinatura, rubrica, anexos e cláusulas condicionais.
+Versionamento obrigatório do modelo. Documentos já assinados permanecem ligados à versão original.
+Modelos por categoria: consentimento, internação, alta, recusa, anestesia, cirurgia, autorização, declaração, encaminhamento e outros.
+31.2 Geração e preenchimento automático
+Ao gerar documento, o sistema preenche automaticamente dados existentes e destaca campos ausentes.
+O usuário revisa antes de enviar; campos críticos não podem ser alterados por perfil não autorizado.
+Dados devem vir de fonte identificável e o documento deve registrar os identificadores dos registros utilizados.
+Permitir gerar PDF final, imprimir, enviar para assinatura e anexar ao prontuário.
+31.3 Assinatura do tutor
+Assinatura dentro do Portal do Tutor ou por link seguro de uso limitado.
+Exibir o documento integral antes da assinatura e exigir aceite explícito.
+Capturar evidências: identidade autenticada, data/hora, IP, dispositivo, versão do documento e hash do arquivo.
+Permitir assinatura desenhada ou método eletrônico disponível; não prometer validade jurídica superior ao método efetivamente implementado.
+Após assinatura, bloquear alterações silenciosas. Qualquer correção exige nova versão e novo fluxo de assinatura.
+31.4 Assinatura do veterinário
+Assinatura eletrônica autenticada no sistema e, quando necessário, integração futura com certificado digital.
+Regras diferentes por tipo documental e exigência legal/profissional.
+Exibir nome, CRMV, UF, data/hora e selo de integridade.
+Revogação ou retificação deve produzir documento complementar, nunca apagar o original.
+32. Módulo 05 — Laboratório interno
+32.1 Fluxo ponta a ponta
+Veterinário solicita exame no atendimento ou internação.
+Sistema cria pedido, cobrança e previsão de materiais, sem efetuar baixa definitiva antes do evento configurado.
+Equipe coleta amostra e imprime etiqueta com identificador único e código de barras/QR Code.
+Amostra entra na cadeia de custódia com coletor, horário, material, recipiente, condição e localização.
+Laboratório recebe, aceita ou rejeita com motivo.
+Exame entra na fila do equipamento ou bancada.
+Resultado é digitado, importado ou integrado ao equipamento.
+Regras sinalizam valores críticos e necessidade de repetição.
+Responsável técnico valida e assina o laudo.
+Laudo é anexado ao prontuário, disponibilizado ao tutor quando autorizado e contabilizado no financeiro.
+32.2 Páginas e recursos
+Painel de pedidos: aguardando coleta, coletado, recebido, em processamento, pendente, concluído, validado, liberado e rejeitado.
+Bancada/fila por setor: hematologia, bioquímica, urinálise, parasitologia e outros.
+Cadastro de exames, valores de referência por espécie/idade, métodos, equipamento, prazo, preço e ficha técnica de consumo.
+Controle de amostras, etiquetas, alíquotas, armazenamento, descarte e repetição.
+Editor de resultado com unidades, intervalos, flags, comentários, anexos e imagens.
+Laudo padronizado, assinatura, histórico de versões e comunicação de valores críticos.
+Controle de qualidade, calibração, manutenção e registros dos equipamentos.
+Integração com estoque para reagentes, tubos, lâminas, ponteiras, controles e demais insumos.
+33. Ampliação do Módulo 07 — Estoque inteligente e fracionado
+33.1 Unidades e conversões
+Cada item deve possuir unidade de compra, unidade de estoque e unidade de consumo, com fator de conversão auditável. Exemplos: caixa → frasco → mL; pacote → unidade; frasco → comprimido; rolo → centímetro; caixa → par de luvas.
+Item
+Compra
+Estoque
+Consumo
+Exemplo de baixa
+Medicamento líquido
+Frasco 100 mL
+mL
+mL
+2,5 mL
+Seringa
+Caixa com 100
+unidade
+unidade
+1 unidade
+Luva
+Caixa com 100 unidades
+unidade ou par
+par
+1 par
+Reagente
+Kit 50 testes
+teste
+teste
+1 teste
+Comprimido
+Caixa com 20
+comprimido
+fração permitida
+0,5 comprimido
+33.2 Fichas técnicas de consumo
+Cada serviço, procedimento, exame, cirurgia, internação ou pacote pode possuir uma composição padrão de insumos.
+Ao registrar execução, o sistema apresenta a composição e permite confirmar consumo real conforme permissão.
+Itens variáveis, como medicamento em mL, recebem quantidade calculada ou informada.
+Baixa deve respeitar lote, validade, FEFO, localização e disponibilidade.
+Divergência, desperdício, quebra, contaminação, perda ou devolução exigem motivo e auditoria.
+Cancelamento do procedimento deve estornar apenas o que não foi efetivamente consumido; o sistema não pode presumir devolução física.
+33.3 Momento da baixa
+A configuração deve permitir reserva no pedido/prescrição e baixa definitiva na execução. Para atendimento, a baixa ocorre quando o procedimento é marcado como realizado ou a medicação como administrada. Para internação, ocorre na checagem válida. Para laboratório, ocorre no processamento ou conclusão conforme o insumo. Para venda, ocorre na confirmação da saída.
+33.4 Alertas e automação
+Estoque mínimo, estoque ideal, cobertura em dias, validade, lote em quarentena e divergência de consumo.
+Sugestão de compra baseada em consumo, agenda futura, sazonalidade e prazo do fornecedor.
+Custo por atendimento, procedimento, exame e paciente.
+Inventário cíclico, contagem por localização, conferência dupla de controlados e trilha completa.
+34. Financeiro automatizado, fiscal, contabilidade e PagHealth
+34.1 Contas a receber
+Criação automática a partir de atendimento, internação, laboratório, venda, plano, mensalidade ou cobrança avulsa.
+Parcelas, vencimentos, recebimentos parciais, descontos, juros, multas, estornos, renegociação e baixa.
+Conciliação automática com PagHealth e identificação de transações não associadas.
+Separação entre competência, data da venda, data do recebimento e previsão de liquidação.
+Não duplicar receita quando uma venda parcelada gera recebimentos em meses posteriores.
+34.2 Contas a pagar
+Criação a partir de compra, nota recebida, contrato, recorrência, imposto, folha, prestador ou lançamento autorizado.
+Fluxo de aprovação, vencimento, centro de custo, categoria, fornecedor, anexo, pagamento e comprovante.
+Parcelas, recorrência, juros, multas, previsão de caixa e conciliação bancária.
+Contas de prestadores podem depender de fechamento, nota fiscal e aprovação.
+34.3 Módulo fiscal
+Configuração por empresa, unidade, município, regime, CNAE e natureza da operação.
+Produtos e serviços com códigos fiscais, regras e alíquotas configuráveis.
+Emissão, consulta, cancelamento, substituição e armazenamento de documentos fiscais por provedor compatível.
+Conciliação entre documento fiscal, atendimento/venda, pagamento e repasse.
+Regras tributárias devem ser configuráveis e validadas por contador; não devem ser codificadas como verdades permanentes.
+34.4 Portal da contabilidade
+Login próprio com acesso mínimo necessário e segregação por clínica/empresa.
+Painel por competência com faturamento, notas emitidas/recebidas, contas pagas, recebimentos, extratos, prestadores, pró-labore, impostos e pendências.
+Central de documentos com status: aguardando, recebido, conferido, divergente, corrigido e encerrado.
+Exportação em formatos acordados, relatórios e anexos; sem acesso ao conteúdo clínico que não seja necessário.
+Canal de solicitações e respostas com prazo, responsável e histórico.
+34.5 Integração PagHealth
+Credenciais e chaves armazenadas em cofre de segredos, nunca no repositório ou frontend.
+Ambientes de homologação e produção separados.
+Webhooks autenticados, idempotentes, persistidos e reprocessáveis.
+Importar transação, valor bruto, taxa, valor líquido, parcelas, bandeira/método, previsão, liquidação, estorno, chargeback e recebedores conforme API disponível.
+Vincular transação à cobrança por identificadores e estratégias de conciliação.
+Painel de falhas, eventos não associados, divergências e reprocessamento.
+Executar split somente quando a API, contrato e regra aprovada permitirem; caso contrário, registrar instrução de repasse manual.
+Qualquer split deve ter idempotência, limite, aprovação configurável, confirmação do provedor e trilha de auditoria.
+35. Módulos 12 e 13 — Gestão e Portal do Prestador
+35.1 Perfis atendidos
+Médicos veterinários PJ ou sócios prestadores.
+Auxiliares e plantonistas.
+Funcionários CLT, quando aplicável.
+Recepção, banho e tosa, laboratório e outros prestadores.
+35.2 Escalas, presença e ponto
+O sistema deve diferenciar ponto trabalhista, confirmação de presença, registro de plantão e execução de serviço. A configuração e os textos não podem presumir vínculo empregatício para todos os usuários.
+Escala, disponibilidade, aceite, troca, falta, atraso e cobertura de plantão.
+Entrada, saída e intervalo para perfis configurados, com localização e dispositivo somente quando legalmente e operacionalmente aprovados.
+Solicitação de ajuste, justificativa e aprovação do gestor.
+Fechamento por período e exportação.
+35.3 Valores, comissões e repasses
+Regras por profissional, serviço, procedimento, produto, plantão, unidade e período.
+Visão em tempo real de valores provisórios, confirmados, retidos, estornados, pagos e pendentes.
+A comissão deve ter evento de aquisição configurável: execução, pagamento recebido, fim do prazo de estorno, aprovação ou nota fiscal recebida.
+Fechamento com memória de cálculo, divergências, descontos autorizados, anexos, aprovação e comprovante.
+Prestador envia nota fiscal e acompanha status de conferência e pagamento.
+35.4 Permissões clínicas no portal
+Auxiliar registra somente tarefas delegadas e dados permitidos; não diagnostica, prescreve ou altera conduta médica.
+Veterinário acessa atendimentos e internações sob sua responsabilidade conforme regras da unidade.
+Toda ação clínica é identificada por usuário, perfil, data/hora e dispositivo.
+36. Extensões obrigatórias do modelo de dados
+Domínio
+Entidades mínimas
+Portal do tutor
+TutorAccount, PetAccessGrant, PublicPetProfile, PublicQrToken, TutorNotification, TutorJourneyEvent
+Internação
+Hospitalization, Bed, PrescriptionVersion, MedicationTask, CareTask, ParameterRecord, BulletinDraft, BulletinApproval
+Laboratório
+LabOrder, Specimen, SpecimenEvent, LabTest, LabResult, LabResultVersion, LabReport, Equipment, QualityControl
+Documentos
+DocumentTemplate, TemplateVersion, FieldDefinition, GeneratedDocument, SignatureRequest, SignatureEvidence
+Estoque
+StockItem, UnitConversion, Lot, StockLocation, ConsumptionRecipe, ConsumptionRecipeItem, Reservation, StockMovement
+Financeiro
+Receivable, Payable, Installment, Payment, Reconciliation, ProviderSettlement, CommissionEntry
+Fiscal/contábil
+FiscalDocument, TaxConfiguration, AccountingPeriod, AccountingDocument, AccountingRequest
+PagHealth
+PaymentProviderAccount, ProviderTransaction, ProviderWebhookEvent, SplitInstruction, SettlementEvent
+Prestadores
+ProviderProfile, ContractRule, Shift, AttendanceRecord, TimesheetAdjustment, ProviderInvoice
+Todas as entidades transacionais devem carregar tenant_id/clinic_id, created_at, created_by e metadados de auditoria. Registros clínicos, financeiros, fiscais e assinados devem ser versionados ou cancelados, nunca sobrescritos sem histórico.
+37. Segurança, privacidade e continuidade operacional
+Princípio do menor privilégio em todos os portais.
+Isolamento rigoroso entre clínicas e unidades; testes automáticos de vazamento entre tenants.
+URLs públicas de QR Code com tokens longos, revogáveis, sem IDs sequenciais.
+Criptografia em trânsito e em repouso para dados e segredos sensíveis.
+Webhooks idempotentes e assinados; proteção contra replay quando suportada.
+Logs não devem armazenar chaves, senhas, dados completos de cartão ou documentos sensíveis desnecessários.
+Backup, restauração testada, fila de eventos, retentativas e painéis de indisponibilidade.
+Consentimentos e preferências com versão, finalidade, data e mecanismo de revogação.
+Portal da TV com dados mínimos e bloqueio automático de configurações.
+38. Novos cenários ponta a ponta obrigatórios
+Cenário
+Resultado esperado
+Tutor novo
+Tutor cria conta, cadastra pet, valida vínculo, agenda consulta, recebe confirmação, informa que está indo, faz check-in e paga pelo portal.
+Exame liberado
+Veterinário solicita, laboratório coleta e processa, responsável valida, laudo entra no prontuário e aparece no perfil do animal para o tutor.
+Vacina e QR
+Clínica aplica vacina, estoque baixa insumos e dose, carteira virtual atualiza e QR público exibe somente o registro autorizado.
+Internação e TV
+Prescrição gera tarefas, TV alerta, auxiliar confirma no portal, estoque baixa mL e materiais, veterinário acompanha e auditoria registra.
+Boletim
+Auxiliar gera rascunho, veterinário edita/aprova, tutor recebe e visualiza no portal.
+Documento
+Modelo é convertido, dados são preenchidos, tutor e veterinário assinam, hash e evidências são guardados e PDF é anexado.
+PagHealth
+Cobrança paga, webhook chega duas vezes, sistema processa uma vez, concilia, calcula repasse e atualiza contas a receber.
+Contabilidade
+Competência fecha, documentos são agrupados, contador confere, aponta divergência e clínica corrige mantendo histórico.
+Prestador
+Plantonista registra presença e tarefas; veterinário acompanha comissão provisória e recebe fechamento após pagamento/validação.
+39. Instrução adicional para o Antigravity
+Antes de implementar qualquer um dos módulos ampliados nesta versão, o agente deve produzir: mapa de telas, matriz de permissões, modelo de dados, contratos de eventos, critérios de aceite, plano de migração, estratégia de testes e lista de dependências. A interface nunca deve ser construída isoladamente das regras de backend, auditoria, estoque, financeiro e notificações correspondentes.
+Nenhuma integração real deve ser ativada com chaves de produção durante geração inicial. Criar adaptadores, contratos e ambiente de homologação; usar segredos por variável/cofre; validar com documentação oficial da API fornecida pela clínica.
+40. Registro de alterações da Versão 2.0
+ID
+Alteração
+Status
+V2-001
+Inclusão do Portal do Tutor completo
+Aprovado
+V2-002
+Carteira virtual e QR Code público controlado
+Aprovado
+V2-003
+Pagamento e jornada “Estou indo” no portal
+Aprovado
+V2-004
+Modo TV da internação com alertas persistentes
+Aprovado
+V2-005
+Portal operacional do auxiliar/plantonista
+Aprovado
+V2-006
+Boletim com aprovação veterinária
+Aprovado
+V2-007
+Documentos inteligentes e assinaturas
+Aprovado
+V2-008
+Laboratório interno
+Aprovado
+V2-009
+Estoque fracionado com baixa automática
+Aprovado
+V2-010
+Fiscal, contabilidade, contas e PagHealth
+Aprovado
+V2-011
+Gestão e Portal do Prestador
+Aprovado
+Itens lembrados posteriormente devem receber novo identificador e entrar em uma versão 2.x ou 3.0, conforme impacto arquitetural.
